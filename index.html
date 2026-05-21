@@ -378,6 +378,164 @@
       canvas { height: 240px; }
     }
 
+
+    /* ===== Built-in editor mode ===== */
+    body.edit-mode {
+      cursor: default;
+    }
+
+    body.edit-mode .controls {
+      bottom: 78px;
+    }
+
+    .editor-toolbar {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15,23,42,.14);
+      box-shadow: 0 16px 48px rgba(15,23,42,.16);
+      backdrop-filter: blur(12px);
+      color: #111827;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    body.edit-mode .editor-toolbar {
+      display: flex;
+    }
+
+    .editor-badge {
+      position: fixed;
+      left: 20px;
+      top: 16px;
+      z-index: 10000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(15,23,42,.14);
+      box-shadow: 0 12px 36px rgba(15,23,42,.12);
+      color: #111827;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mode-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+
+    body.edit-mode .mode-dot {
+      background: #f59e0b;
+    }
+
+    .editor-toolbar button,
+    .editor-toolbar label {
+      border: 1px solid rgba(15,23,42,.14);
+      color: #111827;
+      background: #ffffff;
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-weight: 850;
+      font-size: 13px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .editor-toolbar button:hover,
+    .editor-toolbar label:hover {
+      background: #f1f5f9;
+    }
+
+    .editor-toolbar input[type="file"] {
+      display: none;
+    }
+
+    body.edit-mode [data-editable="true"] {
+      outline: 1.5px dashed rgba(14,165,233,.34);
+      outline-offset: 4px;
+      cursor: move;
+    }
+
+    body.edit-mode [data-editable="true"]:hover {
+      outline-color: rgba(14,165,233,.78);
+    }
+
+    body.edit-mode [contenteditable="true"] {
+      cursor: text;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .selected-editable {
+      outline: 2.5px solid #0ea5e9 !important;
+      outline-offset: 5px !important;
+      box-shadow: 0 0 0 7px rgba(14,165,233,.12);
+    }
+
+    .uploaded-image {
+      object-fit: cover;
+      border-radius: 18px;
+      border: 1px solid rgba(15,23,42,.14);
+      box-shadow: 0 18px 42px rgba(15,23,42,.14);
+      background: #f8fafc;
+    }
+
+    .blank-slide {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .free-text-box {
+      min-width: 220px;
+      min-height: 58px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.88);
+      border: 1px solid rgba(15,23,42,.12);
+      color: #111827;
+      font-size: 28px;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      top: 16px;
+      z-index: 10001;
+      max-width: 420px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: rgba(15,23,42,.92);
+      color: white;
+      font-size: 13px;
+      line-height: 1.45;
+      box-shadow: 0 16px 44px rgba(15,23,42,.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      transform: translateY(-8px);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media print {
       html { scroll-snap-type: none; }
       body { overflow: visible; background: white; }
@@ -396,6 +554,26 @@
 
 <body>
   <div class="progress" id="progress"></div>
+
+  <div class="editor-badge" id="editorBadge">
+    <span class="mode-dot"></span>
+    <span id="modeLabel">보기모드 · T를 누르면 수정모드</span>
+  </div>
+
+  <div class="editor-toolbar" id="editorToolbar" aria-label="수정 도구">
+    <button id="addTextBtn" type="button">텍스트 추가</button>
+    <label for="imageUpload">사진 업로드</label>
+    <input id="imageUpload" type="file" accept="image/*">
+    <button id="addSlideBtn" type="button">슬라이드 추가</button>
+    <button id="duplicateSlideBtn" type="button">슬라이드 복제</button>
+    <button id="deleteElementBtn" type="button">요소 삭제</button>
+    <button id="deleteSlideBtn" type="button">현재 슬라이드 삭제</button>
+    <button id="undoBtn" type="button">Ctrl+Z</button>
+    <button id="saveHtmlBtn" type="button">HTML 저장</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
 
   <main aria-label="16:9 발표 슬라이드">
     <section class="page" data-title="표지">
@@ -538,7 +716,7 @@
   <div class="mini"><span class="kbd">Space</span> 다음 · <span class="kbd">↑</span> <span class="kbd">↓</span> 이동 · 아래 스크롤 스냅</div>
 
   <script>
-    const pages = Array.from(document.querySelectorAll(".page"));
+    let pages = Array.from(document.querySelectorAll(".page"));
     const progress = document.getElementById("progress");
     const counter = document.getElementById("counter");
     const prev = document.getElementById("prev");
@@ -649,7 +827,33 @@
 
     document.addEventListener("keydown", (e) => {
       const activeTag = document.activeElement?.tagName?.toLowerCase();
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        undo();
+        return;
+      }
+
+      if (e.key.toLowerCase() === "t" && !["input", "textarea", "select"].includes(activeTag)) {
+        e.preventDefault();
+        toggleEditMode();
+        return;
+      }
+
+      if (editMode && ["Delete", "Backspace"].includes(e.key)) {
+        const isTyping = document.activeElement?.isContentEditable;
+        if (!isTyping && selectedEl) {
+          e.preventDefault();
+          deleteSelectedElement();
+          return;
+        }
+      }
+
       if (["input", "textarea", "select", "button"].includes(activeTag) && e.key === " ") return;
+
+      if (editMode && document.activeElement?.isContentEditable) {
+        return;
+      }
 
       if ([" ", "Spacebar"].includes(e.key)) {
         e.preventDefault();
@@ -688,6 +892,357 @@
     document.addEventListener("webkitfullscreenchange", () => {
       full.textContent = document.webkitFullscreenElement ? "전체화면 종료" : "전체화면";
     });
+
+
+    /* ===== Editor mode features ===== */
+    let editMode = false;
+    let selectedEl = null;
+    const modeLabel = document.getElementById("modeLabel");
+    const editorBadge = document.getElementById("editorBadge");
+    const addTextBtn = document.getElementById("addTextBtn");
+    const imageUpload = document.getElementById("imageUpload");
+    const addSlideBtn = document.getElementById("addSlideBtn");
+    const duplicateSlideBtn = document.getElementById("duplicateSlideBtn");
+    const deleteElementBtn = document.getElementById("deleteElementBtn");
+    const deleteSlideBtn = document.getElementById("deleteSlideBtn");
+    const undoBtn = document.getElementById("undoBtn");
+    const saveHtmlBtn = document.getElementById("saveHtmlBtn");
+    const toast = document.getElementById("toast");
+    const undoStack = [];
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function pushUndo() {
+      undoStack.push(document.querySelector("main").innerHTML);
+      if (undoStack.length > 60) undoStack.shift();
+    }
+
+    function refreshPages() {
+      pages.splice(0, pages.length, ...document.querySelectorAll(".page"));
+      updateUI();
+    }
+
+    function currentPage() {
+      refreshPages();
+      return pages[clampIndex(current)] || pages[0];
+    }
+
+    function currentSlide() {
+      return currentPage()?.querySelector(".slide");
+    }
+
+    function markEditable(root = document) {
+      const selectors = [
+        ".slide h1", ".slide h2", ".slide h3", ".slide p",
+        ".slide .tag", ".slide .metric", ".slide .visual", ".slide .card",
+        ".slide .quote", ".slide .step", ".slide .free-text-box",
+        ".slide img"
+      ].join(",");
+
+      root.querySelectorAll(selectors).forEach((el) => {
+        if (el.closest(".controls, .editor-toolbar, .editor-badge")) return;
+        el.dataset.editable = "true";
+
+        if (
+          ["H1", "H2", "H3", "P", "SPAN", "DIV"].includes(el.tagName) &&
+          !el.querySelector("canvas") &&
+          !el.classList.contains("visual") &&
+          !el.classList.contains("card") &&
+          !el.classList.contains("step")
+        ) {
+          el.dataset.textEditable = "true";
+        }
+      });
+    }
+
+    function setTextEditing(enabled) {
+      document.querySelectorAll('[data-text-editable="true"]').forEach((el) => {
+        el.contentEditable = enabled ? "true" : "false";
+        el.spellcheck = false;
+      });
+    }
+
+    function clearSelection() {
+      if (selectedEl) selectedEl.classList.remove("selected-editable");
+      selectedEl = null;
+    }
+
+    function selectElement(el) {
+      if (!editMode || !el || !el.dataset.editable) return;
+      clearSelection();
+      selectedEl = el;
+      selectedEl.classList.add("selected-editable");
+    }
+
+    function makeAbsolute(el) {
+      const slide = el.closest(".slide");
+      if (!slide) return;
+
+      const slideRect = slide.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+
+      el.style.position = "absolute";
+      el.style.left = `${rect.left - slideRect.left}px`;
+      el.style.top = `${rect.top - slideRect.top}px`;
+      el.style.width = `${rect.width}px`;
+      el.style.minHeight = `${rect.height}px`;
+      el.style.zIndex = "15";
+    }
+
+    function toggleEditMode(force) {
+      editMode = typeof force === "boolean" ? force : !editMode;
+      document.body.classList.toggle("edit-mode", editMode);
+      modeLabel.textContent = editMode ? "수정모드 · T를 누르면 보기모드" : "보기모드 · T를 누르면 수정모드";
+
+      markEditable(document);
+      setTextEditing(editMode);
+
+      if (!editMode) clearSelection();
+      showToast(editMode ? "수정모드: 텍스트 편집, 드래그 이동, 사진 업로드가 가능합니다." : "보기모드로 전환했습니다.");
+    }
+
+    function addTextBox() {
+      if (!editMode) return;
+      pushUndo();
+
+      const slide = currentSlide();
+      const box = document.createElement("div");
+      box.className = "free-text-box";
+      box.dataset.editable = "true";
+      box.dataset.textEditable = "true";
+      box.contentEditable = "true";
+      box.textContent = "새 텍스트";
+      box.style.position = "absolute";
+      box.style.left = "90px";
+      box.style.top = "90px";
+      box.style.width = "360px";
+      box.style.zIndex = "20";
+
+      slide.appendChild(box);
+      selectElement(box);
+      box.focus();
+    }
+
+    function addImageFromFile(file) {
+      if (!editMode || !file) return;
+      pushUndo();
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const slide = currentSlide();
+        const img = document.createElement("img");
+        img.src = reader.result;
+        img.alt = "업로드한 사진";
+        img.className = "uploaded-image";
+        img.dataset.editable = "true";
+        img.style.position = "absolute";
+        img.style.left = "110px";
+        img.style.top = "120px";
+        img.style.width = "420px";
+        img.style.height = "260px";
+        img.style.zIndex = "18";
+
+        slide.appendChild(img);
+        selectElement(img);
+        showToast("사진을 추가했습니다. 드래그해서 위치를 바꿀 수 있습니다.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addBlankSlide() {
+      if (!editMode) return;
+      pushUndo();
+
+      const page = document.createElement("section");
+      page.className = "page";
+      page.dataset.title = "새 슬라이드";
+      page.innerHTML = `
+        <article class="slide">
+          <div class="content blank-slide">
+            <div class="eyebrow" data-editable="true" data-text-editable="true" contenteditable="true">New Slide</div>
+            <h2 data-editable="true" data-text-editable="true" contenteditable="true">새 슬라이드 제목</h2>
+            <p class="lead" data-editable="true" data-text-editable="true" contenteditable="true">여기에 발표 내용을 입력하세요.</p>
+          </div>
+        </article>
+      `;
+
+      document.querySelector("main").appendChild(page);
+      refreshPages();
+      markEditable(page);
+      go(pages.length - 1, "instant");
+      showToast("새 슬라이드를 추가했습니다.");
+    }
+
+    function duplicateCurrentSlide() {
+      if (!editMode) return;
+      pushUndo();
+
+      const page = currentPage();
+      const clone = page.cloneNode(true);
+      clone.dataset.title = (page.dataset.title || "슬라이드") + " 복제";
+      page.after(clone);
+
+      refreshPages();
+      markEditable(clone);
+      go(current + 1, "instant");
+      showToast("현재 슬라이드를 복제했습니다.");
+    }
+
+    function deleteSelectedElement() {
+      if (!editMode || !selectedEl) return;
+      pushUndo();
+      const target = selectedEl;
+      clearSelection();
+      target.remove();
+      showToast("선택한 요소를 삭제했습니다.");
+    }
+
+    function deleteCurrentSlide() {
+      if (!editMode) return;
+      refreshPages();
+
+      if (pages.length <= 1) {
+        showToast("슬라이드는 최소 1장 필요합니다.");
+        return;
+      }
+
+      pushUndo();
+      const i = clampIndex(current);
+      pages[i].remove();
+      refreshPages();
+      go(Math.min(i, pages.length - 1), "instant");
+      showToast("현재 슬라이드를 삭제했습니다.");
+    }
+
+    function undo() {
+      if (!undoStack.length) {
+        showToast("되돌릴 작업이 없습니다.");
+        return;
+      }
+
+      document.querySelector("main").innerHTML = undoStack.pop();
+      refreshPages();
+      markEditable(document);
+      setTextEditing(editMode);
+      clearSelection();
+      drawAllCharts();
+      updateUI();
+      showToast("되돌렸습니다.");
+    }
+
+    function downloadEditedHtml() {
+      clearSelection();
+      const clone = document.documentElement.cloneNode(true);
+
+      clone.querySelectorAll(".selected-editable").forEach((el) => el.classList.remove("selected-editable"));
+      clone.querySelectorAll('[contenteditable="true"]').forEach((el) => el.setAttribute("contenteditable", "false"));
+      clone.querySelector("body")?.classList.remove("edit-mode");
+
+      const blob = new Blob(["<!DOCTYPE html>\n" + clone.outerHTML], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "edited_web_presentation.html";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("현재 편집 상태를 HTML로 저장했습니다.");
+    }
+
+    let drag = null;
+
+    document.addEventListener("pointerdown", (e) => {
+      if (!editMode) return;
+      if (e.target.closest(".editor-toolbar, .controls, .editor-badge")) return;
+
+      const editable = e.target.closest('[data-editable="true"]');
+      if (!editable) {
+        clearSelection();
+        return;
+      }
+
+      selectElement(editable);
+
+      if (editable.dataset.textEditable === "true" && e.detail >= 2) return;
+      if (editable.isContentEditable && e.target === editable && e.detail >= 2) return;
+
+      const slide = editable.closest(".slide");
+      if (!slide) return;
+
+      pushUndo();
+      makeAbsolute(editable);
+
+      const rect = editable.getBoundingClientRect();
+      drag = {
+        el: editable,
+        slide,
+        startX: e.clientX,
+        startY: e.clientY,
+        startLeft: parseFloat(editable.style.left) || 0,
+        startTop: parseFloat(editable.style.top) || 0
+      };
+
+      editable.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    });
+
+    document.addEventListener("pointermove", (e) => {
+      if (!editMode || !drag) return;
+
+      const dx = e.clientX - drag.startX;
+      const dy = e.clientY - drag.startY;
+
+      drag.el.style.left = `${drag.startLeft + dx}px`;
+      drag.el.style.top = `${drag.startTop + dy}px`;
+    });
+
+    document.addEventListener("pointerup", () => {
+      drag = null;
+    });
+
+    document.addEventListener("input", (e) => {
+      if (!editMode) return;
+      const editable = e.target.closest('[data-editable="true"]');
+      if (editable && editable.dataset.textEditable === "true") {
+        // Text input is intentionally not pushed every keystroke to avoid noisy undo.
+      }
+    });
+
+    document.addEventListener("focusin", (e) => {
+      if (!editMode) return;
+      const editable = e.target.closest('[data-editable="true"]');
+      if (editable) {
+        selectElement(editable);
+        if (editable.dataset.textEditable === "true" && editable.dataset.undoFocused !== "true") {
+          pushUndo();
+          editable.dataset.undoFocused = "true";
+        }
+      }
+    });
+
+    document.addEventListener("focusout", (e) => {
+      const editable = e.target.closest?.('[data-editable="true"]');
+      if (editable) editable.dataset.undoFocused = "false";
+    });
+
+    addTextBtn.addEventListener("click", addTextBox);
+    imageUpload.addEventListener("change", (e) => {
+      addImageFromFile(e.target.files?.[0]);
+      imageUpload.value = "";
+    });
+    addSlideBtn.addEventListener("click", addBlankSlide);
+    duplicateSlideBtn.addEventListener("click", duplicateCurrentSlide);
+    deleteElementBtn.addEventListener("click", deleteSelectedElement);
+    deleteSlideBtn.addEventListener("click", deleteCurrentSlide);
+    undoBtn.addEventListener("click", undo);
+    saveHtmlBtn.addEventListener("click", downloadEditedHtml);
+
+    markEditable(document);
+    setTextEditing(false);
 
     function setupCanvas(canvas) {
       const ratio = window.devicePixelRatio || 1;
