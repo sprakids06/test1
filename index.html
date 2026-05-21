@@ -156,7 +156,7 @@
       border-radius: 24px;
       padding: 22px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.22);
+      box-shadow: 0 20px 60px rgba(15,23,42,.08);
     }
 
     .metric .num {
@@ -181,7 +181,7 @@
       border-radius: 28px;
       border: 1px solid var(--line);
       background: linear-gradient(145deg, rgba(15,23,42,.08), rgba(15,23,42,.035));
-      box-shadow: 0 24px 70px rgba(0,0,0,.28);
+      box-shadow: 0 24px 70px rgba(15,23,42,.10);
       position: relative;
       overflow: hidden;
     }
@@ -199,9 +199,10 @@
       color: #075985;
       font-size: clamp(24px, 2.8vw, 38px);
       font-weight: 950;
-      background: radial-gradient(circle, rgba(56,189,248,.45), rgba(56,189,248,.09) 68%, transparent 70%);
-      border: 1px solid rgba(56,189,248,.42);
-      box-shadow: 0 0 60px rgba(56,189,248,.22);
+      background:
+        radial-gradient(circle, rgba(186,230,253,.95), rgba(224,242,254,.80) 64%, rgba(240,249,255,.25) 70%);
+      border: 2px solid rgba(14,165,233,.35);
+      box-shadow: 0 18px 45px rgba(14,165,233,.16);
     }
 
     .suburb {
@@ -209,8 +210,9 @@
       left: 34px;
       padding: 13px 18px;
       border-radius: 17px;
-      background: rgba(15,23,42,.055);
-      border: 1px solid var(--line);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,.12);
+      box-shadow: 0 10px 28px rgba(15,23,42,.08);
       font-weight: 850;
       color: #1f2937;
       font-size: clamp(13px, 1vw, 16px);
@@ -223,8 +225,10 @@
       height: 18px;
       border-radius: 999px;
       transform-origin: right center;
-      background: linear-gradient(90deg, rgba(148,163,184,.28), rgba(56,189,248,.75));
-      box-shadow: 0 0 28px rgba(56,189,248,.22);
+      background:
+        linear-gradient(90deg, rgba(203,213,225,.75), rgba(14,165,233,.72));
+      box-shadow: 0 8px 24px rgba(14,165,233,.14);
+      border: 1px solid rgba(14,165,233,.18);
     }
     .r1 { width: 405px; top: 148px; transform: rotate(7deg); }
     .r2 { width: 372px; top: 229px; transform: rotate(-13deg); }
@@ -727,7 +731,7 @@
       const max = 90, left = 56, right = 18, top = 26, bottom = 48;
       const cw = w - left - right, ch = h - top - bottom;
 
-      ctx.strokeStyle = "rgba(255,255,255,.15)";
+      ctx.strokeStyle = "rgba(15,23,42,.12)";
       for (let i = 0; i <= 3; i++) {
         const y = top + ch - ch * i / 3;
         ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(w - right, y); ctx.stroke();
@@ -778,7 +782,7 @@
 
       ctx.beginPath();
       ctx.arc(cx, cy, r * .62, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#111827fff";
       ctx.fill();
 
       text(ctx, "53%", cx, cy - 4, 46, "#111827", "center", "950");
